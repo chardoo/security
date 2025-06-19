@@ -84,9 +84,9 @@ def derive_key(password, master_seed, transform_seed, transform_rounds):
     return final_key
 
 def try_decrypt(encrypted_data, key, iv, expected_start_bytes):
-    """Try to decrypt the first block and check if it matches the stream start bytes"""
+    """Try to decrypt the first 32 bytes and check if it matches the stream start bytes"""
     try:
-        # Ensure we have enough data to decrypt
+        # Ensure we have enough data to decrypt (need at least 32 bytes)
         if len(encrypted_data) < 32:
             return False
             
@@ -98,11 +98,12 @@ def try_decrypt(encrypted_data, key, iv, expected_start_bytes):
                 iv = iv[:16]
         
         cipher = AES.new(key, AES.MODE_CBC, iv)
+        # Decrypt exactly 32 bytes (first two AES blocks for CBC mode)
         decrypted = cipher.decrypt(encrypted_data[:32])
         
-        # Compare with expected stream start bytes
-        expected_len = len(expected_start_bytes)
-        return decrypted[:expected_len] == expected_start_bytes
+        # The specification states that the first 32 bytes of decrypted data
+        # should match the stream_start_bytes header field exactly
+        return decrypted == expected_start_bytes
         
     except Exception as e:
         return False
