@@ -144,7 +144,7 @@ def brute_force_attack(header_info, encrypted_data):
             
             try:
                 key = derive_key(password, master_seed, transform_seed, transform_rounds)
-                
+                print(key,password, master_seed,transform_seed, transform_rounds  );
                 # Try to decrypt and verify
                 if try_decrypt(encrypted_data, key, encryption_iv, stream_start_bytes):
                     print(f"SUCCESS! Password found: {password}")
